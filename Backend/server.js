@@ -1,36 +1,45 @@
 const express = require("express");
+const path = require("path");
 const mongoose = require("mongoose");
-require("dotenv").config();
+require("dotenv").config(); // Only needed locally; Render uses env vars
 
-const cors = require("cors");
+const app = express();
 
-const app = express();  // ✅ create app first
-
-// ======= MIDDLEWARE =======
-app.use(cors());                  // ✅ now app exists
+// Parse JSON for backend routes
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// ======= ROUTES =======
-const contactRoutes = require("./routes/contact");
-app.use("/api/contact", contactRoutes);
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, "../Frontend")));
 
-// ======= MONGODB =======
+// Serve index.html on root
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../Frontend/index.html"));
+});
+
+// Example backend route: Contact form
+const Contact = require("./models/Contact");
+app.post("/contact", async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    const newContact = new Contact({ name, email, message });
+    await newContact.save();
+    res.json({ message: "Form submitted successfully!" });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log("✅ MongoDB Connected Successfully"))
-.catch(err => console.error("❌ MongoDB Connection Failed:", err));
+.then(() => console.log("MongoDB connected ✅"))
+.catch(err => console.log(err));
 
-// ======= TEST ROUTE =======
-app.get("/", (req, res) => {
-  res.send("Backend running successfully 🚀");
-});
-
-// ======= START SERVER =======
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log("Backend running successfully 🚀"));
+
 
 
 
