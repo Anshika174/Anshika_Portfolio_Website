@@ -54,46 +54,47 @@
   </main>
 
   <script>
-    const form = document.querySelector('.contact-form');
-    const statusMsg = document.getElementById('status-msg');
+  const form = document.querySelector('.contact-form');
+  const statusMsg = document.getElementById('status-msg');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault(); // Prevent page reload
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Prevent page reload
 
-      statusMsg.style.color = 'blue';
-      statusMsg.textContent = 'Sending...';
+    statusMsg.style.color = 'blue';
+    statusMsg.textContent = 'Sending...';
 
-      const formData = {
-        name: form.name.value,
-        email: form.email.value,
-        message: form.message.value
-      };
+    const formData = {
+      name: form.name.value,
+      email: form.email.value,
+      message: form.message.value
+    };
 
-      try {
-        const res = await fetch('http://localhost:5000/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
-        });
+    try {
+      const res = await fetch("/api/contact", { // Relative URL works locally and on Render
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (data.success) {
-          statusMsg.style.color = 'green';
-          statusMsg.textContent = data.msg || 'Message sent successfully!';
-          form.reset();
-        } else {
-          statusMsg.style.color = 'red';
-          statusMsg.textContent = data.error || 'Failed to send message';
-        }
-
-      } catch (err) {
-        console.error('Error:', err);
+      if (data.success) {
+        statusMsg.style.color = 'green';
+        statusMsg.textContent = data.msg || 'Message sent successfully!';
+        form.reset();
+      } else {
         statusMsg.style.color = 'red';
-        statusMsg.textContent = 'Error sending message. Try again later.';
+        statusMsg.textContent = data.error || 'Failed to send message';
       }
-    });
-  </script>
+
+    } catch (err) {
+      console.error('Error:', err);
+      statusMsg.style.color = 'red';
+      statusMsg.textContent = 'Error sending message. Try again later.';
+    }
+  });
+</script>
+
 </body>
 </html>
 
