@@ -8,6 +8,9 @@ const app = express();
 // Parse JSON for backend routes
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: true }));
+
+
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "../Frontend")));
 
