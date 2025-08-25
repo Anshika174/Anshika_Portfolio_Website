@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const Contact = require("../models/Contact");
 
+// POST /contact
 router.post("/", async (req, res) => {
   try {
-    console.log("📩 Incoming request at /api/contact", req.body);
+    console.log("📩 Incoming request at /contact", req.body);
 
     const { name, email, message } = req.body;
 
@@ -23,4 +24,3 @@ router.post("/", async (req, res) => {
 });
 
 module.exports = router;
-

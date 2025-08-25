@@ -1,47 +1,33 @@
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
-require("dotenv").config(); // Only needed locally; Render uses env vars
+require("dotenv").config();
 
 const app = express();
 
-// Parse JSON for backend routes
+// Middleware
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: true }));
 
-
-// Serve static frontend files
+// Serve frontend
 app.use(express.static(path.join(__dirname, "../Frontend")));
 
-// Serve index.html on root
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../Frontend/index.html"));
 });
 
-// Example backend route: Contact form
-const Contact = require("./models/Contact");
-app.post("/contact", async (req, res) => {
-  try {
-    const { name, email, message } = req.body;
-    const newContact = new Contact({ name, email, message });
-    await newContact.save();
-    res.json({ message: "Form submitted successfully!" });
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
+// ✅ Use contact routes
+const contactRoutes = require("./routes/contact");
+app.use("/contact", contactRoutes);
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("MongoDB connected ✅"))
-.catch(err => console.log(err));
+// Connect MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected ✅"))
+  .catch(err => console.log("❌ DB error:", err));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log("Backend running successfully 🚀"));
+
 
 
 
